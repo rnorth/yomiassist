@@ -69,6 +69,6 @@ public class Edict {
 	
 	public String lookup(String writtenForm) {
 		
-		return dictionary.get(writtenForm);
+		return dictionary.containsKey(writtenForm) ? dictionary.get(writtenForm) : "";
 	}
 }

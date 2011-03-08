@@ -3,14 +3,18 @@ package org.azkindle;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.Text;
 import org.jdom.input.SAXBuilder;
+import org.jdom.output.XMLOutputter;
 import org.jdom.xpath.XPath;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -29,6 +33,7 @@ public class AzKindle {
 	private static StringTagger stringTagger;
 	private static Edict edictDictionary;
 	private static final File outputFile = new File("output.txt");
+	private static final Map<String,Ruby> forcedRubies = new HashMap<String,Ruby>();
 
 	/**
 	 * @param args
@@ -39,63 +44,95 @@ public class AzKindle {
 
 		edictDictionary = new Edict();
 
-			try {
-				configurationFilename = new File(AzKindle.class.getResource("/gosen/dictionary.xml").toURI()).toString();
-			} catch (URISyntaxException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		try {
+			configurationFilename = new File(AzKindle.class.getResource("/gosen/dictionary.xml").toURI()).toString();
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		stringTagger = SenFactory.getStringTagger(configurationFilename);
-
-		String textToAnalyze = "これは日本語のテスト。新幹線で東京へ行くつもりです。鍋じゃないなら行かない";
 
 		Document doc = new SAXBuilder(false).build(new File("rashomon.html"));
 		Element mainTextNode = (Element) XPath.selectNodes(doc.getRootElement(), "//div[@class='main_text']").get(0);
 
 		List childNodes = mainTextNode.getContent();
 		Iterator iterator = childNodes.iterator();
+
+
+		List<Ruby> allRuby = new ArrayList<Ruby>();
 		while (iterator.hasNext()) {
 			Object nextChild = iterator.next();
 
 			if (nextChild instanceof Text) {
-				analyzeText(((Text) nextChild).getText());
+				final Text textNode = (Text) nextChild;
+				allRuby.addAll(analyzeText(textNode.getText()));
 			} else if (nextChild instanceof Element) {
-				analyzeText(((Element) nextChild).getText());
+				final Element elementNode = (Element) nextChild;
+				
+				if (elementNode.getName().equals("ruby")) {
+					final Ruby forcedRuby = copyForcedRuby(elementNode);
+					forcedRubies.put(forcedRuby.getWrittenForm(), forcedRuby);
+					allRuby.add(forcedRuby);
+					
+				} else {
+					allRuby.addAll(analyzeText(elementNode.getText()));
+				}
+				
 			}
-
 		}
 
+		XMLOutputter xmlOutputter = new XMLOutputter();
+		for (Ruby r : allRuby) {
+			Files.append(xmlOutputter.outputString(r.toNode()) + '\n', outputFile, Charsets.UTF_8);
+		}
 	}
 
-	private static void analyzeText(String textToAnalyze) throws IOException {
+	private static Ruby copyForcedRuby(Element elementNode) {
+		String reading = elementNode.getChild("rt").getText();
+		String writtenForm = elementNode.getChild("rb").getText();
+		
+		String definition = edictDictionary.lookup(writtenForm);
+		
+		System.out.println("Copying an existing ruby: " + writtenForm + " " + reading);
+		
+		return new Ruby(writtenForm, reading, definition);
+	}
+
+	private static List<Ruby> analyzeText(String textToAnalyze) throws IOException {
 		List<Token> analysis = stringTagger.analyze(textToAnalyze);
 
 		Transliterator tx = Transliterator.getInstance("Katakana-Hiragana");
+		List<Ruby> rubyFound = new ArrayList<Ruby>();
 
 		for (Token token : analysis) {
 
-			String ruby;
-			if (token.getMorpheme().getReadings().size() > 0) {
+			String writtenForm = token.toString();
+			Ruby ruby;
+			final boolean hasReadings = token.getMorpheme().getReadings().size() > 0;
+			final boolean previouslyForcedRuby = forcedRubies.containsKey(writtenForm);
+			
+			if (previouslyForcedRuby) {
+				ruby = forcedRubies.get(writtenForm);
+			} else if (hasReadings) {
 				String katakanaReading = token.getMorpheme().getReadings().get(0);
-				String hiraganaReading = tx.transform(katakanaReading);
+				String reading = tx.transform(katakanaReading);
 
 				String baseForm = token.getMorpheme().getBasicForm();
 				String definition = edictDictionary.lookup(baseForm);
-				if (definition == null)
-					definition = "";
-				definition = definition.replace("'", "\"");
 
-				if (!token.toString().equals(hiraganaReading) && !token.toString().equals(katakanaReading)) {
-					ruby = "<ruby definition='" + definition + "'>" + token + "<rt>" + hiraganaReading + "</rt></ruby>";
+				if (!writtenForm.equals(reading) && !writtenForm.equals(katakanaReading)) {
+					ruby = new Ruby(writtenForm, reading, definition);
 				} else {
-					ruby = "<ruby definition='" + definition + "'>" + token + "</ruby>";
+					ruby = new Ruby(writtenForm, definition);
 				}
 			} else {
-				ruby = "<ruby>" + token + "</ruby>";
+				ruby = new Ruby(writtenForm);
 			}
 
-			Files.append(ruby + '\n', outputFile, Charsets.UTF_8);
+			rubyFound.add(ruby);
 		}
+
+		return rubyFound;
 	}
 
 }

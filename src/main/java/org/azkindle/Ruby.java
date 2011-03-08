@@ -1,6 +1,7 @@
 package org.azkindle;
 
 import org.jdom.Element;
+import org.jdom.Text;
 import org.w3c.dom.Node;
 
 import net.java.sen.dictionary.Token;
@@ -11,19 +12,19 @@ public class Ruby {
 	private String reading = null;
 	private String definition = null;
 
-	public Ruby(Token writtenForm, String reading, String definition) {
+	public Ruby(String writtenForm, String reading, String definition) {
 		this.writtenForm = writtenForm.toString();
 		this.reading = reading;
 		this.definition = definition;
 	}
 
-	public Ruby(Token writtenForm, String definition) {
-		this.writtenForm = writtenForm.toString();
+	public Ruby(String writtenForm, String definition) {
+		this.writtenForm = writtenForm;
 		this.definition = definition;
 	}
 
-	public Ruby(Token writtenForm) {
-		this.writtenForm = writtenForm.toString();
+	public Ruby(String writtenForm) {
+		this.writtenForm = writtenForm;
 	}
 
 	public Element toNode() {
@@ -39,8 +40,22 @@ public class Ruby {
 			element.addContent(rtChildNode);
 		}
 		
-		element.setText(writtenForm);
+		element.addContent(new Text(writtenForm));
 		
 		return element;
 	}
+
+	public String getWrittenForm() {
+		return writtenForm;
+	}
+
+	public String getReading() {
+		return reading;
+	}
+
+	public String getDefinition() {
+		return definition;
+	}
+	
+	
 }
