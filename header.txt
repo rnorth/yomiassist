@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"> 
+    <head> 
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+        <title>New Web Project</title> 
+        <style type="text/css"> 
+            body {
+                width: 8.5cm;
+                font-size: 11pt;
+            }
+            
+            ruby {
+                
+            }
+            
+            ruby.break {
+                border-top: 1px dotted black;
+            }
+            
+            div.break {
+                page-break-before: always;
+            }
+            
+            div.vocab {
+                border-top: 1px solid black;
+                font-size: 6pt;
+                margin-top: 6pt;
+            }
+        </style> 
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js"></script> 
+        <script type="text/javascript" src="js/jquery.textchildren.js"></script> 
+        
+        <script type="text/javascript" src="js/split.js"></script> 
+    </head> 
+    <body> 
+        <h1>羅生門</h1> 
+        <div id="content"> 
+        
+        
+        

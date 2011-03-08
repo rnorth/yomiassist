@@ -32,7 +32,7 @@ public class AzKindle {
 	private static String configurationFilename;
 	private static StringTagger stringTagger;
 	private static Edict edictDictionary;
-	private static final File outputFile = new File("output.txt");
+	private static final File outputFile = new File("output.html");
 	private static final Map<String,Ruby> forcedRubies = new HashMap<String,Ruby>();
 
 	/**
@@ -81,10 +81,17 @@ public class AzKindle {
 			}
 		}
 
+		outputFile.delete();
+		outputFile.createNewFile();
+		
+		Files.copy(new File("header.txt"), outputFile);
+		
 		XMLOutputter xmlOutputter = new XMLOutputter();
 		for (Ruby r : allRuby) {
 			Files.append(xmlOutputter.outputString(r.toNode()) + '\n', outputFile, Charsets.UTF_8);
 		}
+		
+		Files.append(new String(Files.toByteArray(new File("footer.txt"))), outputFile, Charsets.UTF_8);
 	}
 
 	private static Ruby copyForcedRuby(Element elementNode) {
