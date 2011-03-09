@@ -5,9 +5,11 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.jdom.Document;
 import org.jdom.Element;
@@ -21,6 +23,7 @@ import org.w3c.dom.NodeList;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
+import com.google.common.io.LineProcessor;
 import com.ibm.icu.text.Transliterator;
 
 import net.java.sen.SenFactory;
@@ -32,6 +35,7 @@ public class AzKindle {
 	private static String configurationFilename;
 	private static StringTagger stringTagger;
 	private static Edict edictDictionary;
+	private static Set<String> knownWords;
 	private static final File outputFile = new File("output.html");
 	private static final Map<String,Ruby> forcedRubies = new HashMap<String,Ruby>();
 
@@ -42,6 +46,8 @@ public class AzKindle {
 	 */
 	public static void main(String[] args) throws IOException, JDOMException {
 
+		knownWords = loadKnownWords();
+		
 		edictDictionary = new Edict();
 
 		try {
@@ -94,6 +100,27 @@ public class AzKindle {
 		Files.append(new String(Files.toByteArray(new File("footer.txt"))), outputFile, Charsets.UTF_8);
 	}
 
+	private static Set<String> loadKnownWords() throws IOException {
+		File jlptN5Words = new File("jlpt_n5_words.txt");
+		return Files.readLines(jlptN5Words, Charsets.UTF_8, new LineProcessor<Set<String>>() {
+
+			Set<String> words = new HashSet<String>();
+			
+			public boolean processLine(String line) throws IOException {
+				if(line.indexOf('-')==0) {
+					words.add(line.substring(1));
+				} else {
+					words.add(line.substring(0,line.indexOf('-')));
+				}
+				return true;
+			}
+
+			public Set<String> getResult() {
+				return words;
+			}
+		});
+	}
+
 	private static Ruby copyForcedRuby(Element elementNode) {
 		String reading = elementNode.getChild("rt").getText();
 		String writtenForm = elementNode.getChild("rb").getText();
@@ -134,6 +161,12 @@ public class AzKindle {
 				}
 			} else {
 				ruby = new Ruby(writtenForm);
+			}
+			
+			if (knownWords.contains(writtenForm)) {
+				System.out.println("Written form recognised as known: " + writtenForm);
+				ruby.setKnownDefinition(true);
+				ruby.setKnownReading(true);
 			}
 
 			rubyFound.add(ruby);

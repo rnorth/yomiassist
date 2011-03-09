@@ -1,5 +1,6 @@
 package org.azkindle;
 
+import org.jdom.Attribute;
 import org.jdom.Element;
 import org.jdom.Text;
 import org.w3c.dom.Node;
@@ -11,6 +12,8 @@ public class Ruby {
 	private String writtenForm = null;
 	private String reading = null;
 	private String definition = null;
+	private boolean knownDefinition;
+	private boolean knownReading;
 
 	public Ruby(String writtenForm, String reading, String definition) {
 		this.writtenForm = writtenForm.toString();
@@ -30,17 +33,19 @@ public class Ruby {
 	public Element toNode() {
 		Element element = new Element("ruby");
 		
-		if (definition != null) {
+		element.addContent(new Text(writtenForm));
+		
+		if (definition != null && !knownDefinition) {
 			element.setAttribute("definition", definition);
 		}
 		
-		if (reading != null) {
+		if (reading != null && !knownReading) {
+			
 			final Element rtChildNode = new Element("rt");
 			rtChildNode.setText(reading);
 			element.addContent(rtChildNode);
 		}
 		
-		element.addContent(new Text(writtenForm));
 		
 		return element;
 	}
@@ -56,6 +61,13 @@ public class Ruby {
 	public String getDefinition() {
 		return definition;
 	}
-	
+
+	public void setKnownDefinition(boolean knownDefinition) {
+		this.knownDefinition = knownDefinition;
+	}
+
+	public void setKnownReading(boolean knownReading) {
+		this.knownReading = knownReading;
+	}
 	
 }
