@@ -12,10 +12,15 @@ $(function(){
 //    
 //    $("#content").remove();
     
-	// Remove blank ruby elements
 	$.each($("ruby"), function(i,char) {
-		if ($(char).text() == "") {
+		// Remove blank ruby elements
+		if ($(char).text() == "" || $(char).text() == " ") {
 			$(char).remove();
+		}
+		
+		// Identify ruby elements without furigana
+		if ($(char).children("rt").length == 0) {
+			$(char).addClass("plain");
 		}
 	});
 	
@@ -64,7 +69,7 @@ $(function(){
 			
 			var definition = $(val).attr("definition");
 			if (definition != '' && definition != undefined) {
-				vocabBox.append("<span>" + definition + "</span> ");
+				vocabBox.append("<span class='vocabDefinition'>" + definition + "</span> ");
 			}
 			
 		} else {

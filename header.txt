@@ -2,11 +2,15 @@
 <html xmlns="http://www.w3.org/1999/xhtml"> 
     <head> 
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
-        <title>New Web Project</title> 
+        <title>夢十夜</title> 
         <style type="text/css"> 
             body {
                 width: 8.5cm;
                 font-size: 11pt;
+            }
+            
+            ruby.plain + ruby.plain {
+                margin-left: -3pt;
             }
             
             ruby {
@@ -14,7 +18,7 @@
             }
             
             ruby.break {
-                border-top: 1px dotted black;
+                /* border-top: 1px dotted black; */
             }
             
             div.break {
@@ -26,6 +30,10 @@
                 font-size: 6pt;
                 margin-top: 6pt;
             }
+            
+            span.vocabDefinition + span.vocabDefinition {
+                margin-left: 12pt;
+            }
         </style> 
         <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js"></script> 
         <script type="text/javascript" src="js/jquery.textchildren.js"></script> 
@@ -33,7 +41,8 @@
         <script type="text/javascript" src="js/split.js"></script> 
     </head> 
     <body> 
-        <h1>羅生門</h1> 
+        <h1>夢十夜</h1> 
+        <h2>夏目漱石</h2>
         <div id="content"> 
         
         

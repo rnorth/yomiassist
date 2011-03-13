@@ -14,12 +14,15 @@ import java.util.Set;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
+import org.jdom.Namespace;
 import org.jdom.Text;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 import org.jdom.xpath.XPath;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.DTDHandler;
+import org.xml.sax.SAXException;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
@@ -36,6 +39,7 @@ public class AzKindle {
 	private static StringTagger stringTagger;
 	private static Edict edictDictionary;
 	private static Set<String> knownWords;
+	private static Namespace ns;
 	private static final File outputFile = new File("output.html");
 	private static final Map<String,Ruby> forcedRubies = new HashMap<String,Ruby>();
 
@@ -58,8 +62,15 @@ public class AzKindle {
 		}
 		stringTagger = SenFactory.getStringTagger(configurationFilename);
 
-		Document doc = new SAXBuilder(false).build(new File("rashomon.html"));
-		Element mainTextNode = (Element) XPath.selectNodes(doc.getRootElement(), "//div[@class='main_text']").get(0);
+		final SAXBuilder saxBuilder = new SAXBuilder(false);
+		saxBuilder.setFeature(
+				  "http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+		Document doc = saxBuilder.build(new File("rashomon.html"));
+		XPath xpath = XPath.newInstance("//xhtml:div[@class='main_text']");
+		ns = Namespace.getNamespace("xhtml", "http://www.w3.org/1999/xhtml");
+		xpath.addNamespace(ns);
+		Element mainTextNode = (Element) xpath.selectSingleNode(doc);
+//		Element mainTextNode = (Element) XPath.selectNodes(doc.getRootElement(), "//div[@class='main_text']").get(0);
 
 		List childNodes = mainTextNode.getContent();
 		Iterator iterator = childNodes.iterator();
@@ -101,16 +112,21 @@ public class AzKindle {
 	}
 
 	private static Set<String> loadKnownWords() throws IOException {
-		File jlptN5Words = new File("jlpt_n5_words.txt");
-		return Files.readLines(jlptN5Words, Charsets.UTF_8, new LineProcessor<Set<String>>() {
+		File jlptN4Words = new File("jlpt_n4_n5_words.txt");
+		return Files.readLines(jlptN4Words, Charsets.UTF_8, new LineProcessor<Set<String>>() {
 
 			Set<String> words = new HashSet<String>();
 			
 			public boolean processLine(String line) throws IOException {
-				if(line.indexOf('-')==0) {
+				final boolean kanaOnly = line.indexOf('-')==0;
+				if(kanaOnly) {
 					words.add(line.substring(1));
 				} else {
-					words.add(line.substring(0,line.indexOf('-')));
+					final String kanjiPortion = line.substring(0,line.indexOf('-'));
+					String[] kanjiVariants = kanjiPortion.split("\\s");
+					for (String variant : kanjiVariants) {
+						words.add(kanjiPortion);
+					}
 				}
 				return true;
 			}
@@ -122,8 +138,8 @@ public class AzKindle {
 	}
 
 	private static Ruby copyForcedRuby(Element elementNode) {
-		String reading = elementNode.getChild("rt").getText();
-		String writtenForm = elementNode.getChild("rb").getText();
+		String reading = elementNode.getChild("rt", ns).getText();
+		String writtenForm = elementNode.getChild("rb", ns).getText();
 		
 		String definition = edictDictionary.lookup(writtenForm);
 		
