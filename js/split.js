@@ -13,14 +13,23 @@ $(function(){
 //    $("#content").remove();
     
 	$.each($("ruby"), function(i,char) {
+		
+		var text = $(char).text();
 		// Remove blank ruby elements
-		if ($(char).text() == "" || $(char).text() == " ") {
+		if (text == "" || text == " ") {
 			$(char).remove();
 		}
 		
 		// Identify ruby elements without furigana
 		if ($(char).children("rt").length == 0) {
 			$(char).addClass("plain");
+		}
+		
+		// Move punctuation into previous element to avoid
+		//  spilling over to next line
+		if (text == "、" || text == "。" || text == "」") {
+			$(char.previousElementSibling).text($(char.previousElementSibling).text() + text);
+			$(char).remove();
 		}
 	});
 	
