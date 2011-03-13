@@ -71,6 +71,14 @@ public class AzKindle {
 		xpath.addNamespace(ns);
 		Element mainTextNode = (Element) xpath.selectSingleNode(doc);
 //		Element mainTextNode = (Element) XPath.selectNodes(doc.getRootElement(), "//div[@class='main_text']").get(0);
+		
+		XPath titleXPath = XPath.newInstance("//xhtml:h1[@class='title']");
+		titleXPath.addNamespace(ns);
+		XPath authorXPath = XPath.newInstance("//xhtml:h2[@class='author']");
+		authorXPath.addNamespace(ns);
+		
+		String title = ((Element) titleXPath.selectSingleNode(doc)).getText();
+		String author = ((Element) authorXPath.selectSingleNode(doc)).getText();
 
 		List childNodes = mainTextNode.getContent();
 		Iterator iterator = childNodes.iterator();
@@ -101,7 +109,10 @@ public class AzKindle {
 		outputFile.delete();
 		outputFile.createNewFile();
 		
-		Files.copy(new File("header.txt"), outputFile);
+		String headerContents = new String(Files.toByteArray(new File("header.txt")));
+		headerContents = headerContents.replaceAll("%title%", title);
+		headerContents = headerContents.replaceAll("%author%", author);
+		Files.append(headerContents, outputFile, Charsets.UTF_8);
 		
 		XMLOutputter xmlOutputter = new XMLOutputter();
 		for (Ruby r : allRuby) {

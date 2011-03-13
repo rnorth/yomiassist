@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml"> 
     <head> 
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
-        <title>夢十夜</title> 
+        <title>%title%</title> 
         <style type="text/css"> 
             body {
                 width: 8.5cm;
@@ -41,8 +41,8 @@
         <script type="text/javascript" src="js/split.js"></script> 
     </head> 
     <body> 
-        <h1>夢十夜</h1> 
-        <h2>夏目漱石</h2>
+        <h1>%title%</h1> 
+        <h2>%author%</h2>
         <div id="content"> 
         
         
