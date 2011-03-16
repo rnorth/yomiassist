@@ -11,6 +11,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.java.sen.SenFactory;
+import net.java.sen.StringTagger;
+import net.java.sen.dictionary.Token;
+
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -19,19 +23,13 @@ import org.jdom.Text;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 import org.jdom.xpath.XPath;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.DTDHandler;
-import org.xml.sax.SAXException;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
 import com.ibm.icu.text.Transliterator;
-
-import net.java.sen.SenFactory;
-import net.java.sen.StringTagger;
-import net.java.sen.dictionary.Token;
 
 public class AzKindle {
 
@@ -40,7 +38,6 @@ public class AzKindle {
 	private static Edict edictDictionary;
 	private static Set<String> knownWords;
 	private static Namespace ns;
-	private static final File outputFile = new File("output.html");
 	private static final Map<String,Ruby> forcedRubies = new HashMap<String,Ruby>();
 
 	/**
@@ -50,6 +47,20 @@ public class AzKindle {
 	 */
 	public static void main(String[] args) throws IOException, JDOMException {
 
+		
+		final Options options = new Options();
+		final CmdLineParser parser = new CmdLineParser(options);
+		try {
+			parser.parseArgument(args);
+			
+			
+		} catch (CmdLineException e) {
+			System.err.println(e.getMessage());
+			System.err.println("java -jar yomiassist.jar [options...]");
+			parser.printUsage(System.err);
+			return;
+		}
+		
 		knownWords = loadKnownWords();
 		
 		edictDictionary = new Edict();
@@ -65,7 +76,7 @@ public class AzKindle {
 		final SAXBuilder saxBuilder = new SAXBuilder(false);
 		saxBuilder.setFeature(
 				  "http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-		Document doc = saxBuilder.build(new File("rashomon.html"));
+		Document doc = saxBuilder.build(options.inputFile);
 		XPath xpath = XPath.newInstance("//xhtml:div[@class='main_text']");
 		ns = Namespace.getNamespace("xhtml", "http://www.w3.org/1999/xhtml");
 		xpath.addNamespace(ns);
@@ -106,20 +117,21 @@ public class AzKindle {
 			}
 		}
 
-		outputFile.delete();
-		outputFile.createNewFile();
+		options.outputFile.delete();
+		options.outputFile.createNewFile();
 		
 		String headerContents = new String(Files.toByteArray(new File("header.txt")));
 		headerContents = headerContents.replaceAll("%title%", title);
 		headerContents = headerContents.replaceAll("%author%", author);
-		Files.append(headerContents, outputFile, Charsets.UTF_8);
+		Files.append(headerContents, options.outputFile, Charsets.UTF_8);
 		
 		XMLOutputter xmlOutputter = new XMLOutputter();
 		for (Ruby r : allRuby) {
-			Files.append(xmlOutputter.outputString(r.toNode()) + '\n', outputFile, Charsets.UTF_8);
+			Files.append(xmlOutputter.outputString(r.toNode()) + '\n', options.outputFile, Charsets.UTF_8);
 		}
 		
-		Files.append(new String(Files.toByteArray(new File("footer.txt"))), outputFile, Charsets.UTF_8);
+		Files.append(new String(Files.toByteArray(new File("footer.txt"))), options.outputFile, Charsets.UTF_8);
+
 	}
 
 	private static Set<String> loadKnownWords() throws IOException {
