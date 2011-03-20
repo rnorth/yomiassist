@@ -2,6 +2,7 @@ package org.azkindle;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,11 +30,11 @@ import org.kohsuke.args4j.CmdLineParser;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
+import com.google.common.io.Resources;
 import com.ibm.icu.text.Transliterator;
 
 public class AzKindle {
 
-	private static String configurationFilename;
 	private static StringTagger stringTagger;
 	private static Edict edictDictionary;
 	private static Set<String> knownWords;
@@ -165,7 +166,7 @@ public class AzKindle {
 		options.outputFile.delete();
 		options.outputFile.createNewFile();
 
-		String headerContents = new String(Files.toByteArray(new File("header.txt")));
+		String headerContents = new String(Files.toByteArray(new File("templates/header.txt")));
 		headerContents = headerContents.replaceAll("%title%", title);
 		headerContents = headerContents.replaceAll("%author%", author);
 		Files.append(headerContents, options.outputFile, Charsets.UTF_8);
@@ -175,17 +176,13 @@ public class AzKindle {
 			Files.append(xmlOutputter.outputString(r.toNode()) + '\n', options.outputFile, Charsets.UTF_8);
 		}
 
-		Files.append(new String(Files.toByteArray(new File("footer.txt"))), options.outputFile, Charsets.UTF_8);
+		Files.append(new String(Files.toByteArray(new File("templates/footer.txt"))), options.outputFile, Charsets.UTF_8);
 	}
 
 	private static void prepareGosenTagger() {
-		try {
-			configurationFilename = new File(AzKindle.class.getResource("/gosen/dictionary.xml").toURI()).toString();
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		stringTagger = SenFactory.getStringTagger(configurationFilename);
+			File gosenConfigFile = new File("dictionaries/gosen/dictionary.xml");
+			String configurationFilename = gosenConfigFile.getAbsolutePath();
+			stringTagger = SenFactory.getStringTagger(configurationFilename);
 	}
 
 	private static Ruby copyForcedRuby(Element elementNode) {
