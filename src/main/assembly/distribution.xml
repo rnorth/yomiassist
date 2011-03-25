@@ -42,5 +42,4 @@
 			<useProjectArtifact>false</useProjectArtifact>
 		</dependencySet>
 	</dependencySets>
-
 </assembly>

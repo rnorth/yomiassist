@@ -19,8 +19,9 @@ public class Edict {
 
 	public Edict() {
 
+		final File dictionaryFile = new File("dictionaries/edict/edict.txt");
 		try {
-			Files.readLines(new File("dictionaries/edict/edict.txt"), Charset.forName("EUC-JP"), new LineProcessor<Boolean>() {
+			Files.readLines(dictionaryFile, Charset.forName("EUC-JP"), new LineProcessor<Boolean>() {
 
 				public boolean processLine(String line) throws IOException {
 					addDictionaryTerm(line);
@@ -33,11 +34,9 @@ public class Edict {
 			});
 
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new DictionaryException("Could not locate dictionary file " + dictionaryFile, e);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new DictionaryException("Could not load dictionary file " + dictionaryFile, e);
 		}
 	}
 

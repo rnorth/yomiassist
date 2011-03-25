@@ -6,11 +6,9 @@ import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import net.java.sen.SenFactory;
 import net.java.sen.StringTagger;
@@ -26,10 +24,11 @@ import org.jdom.output.XMLOutputter;
 import org.jdom.xpath.XPath;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
-import com.google.common.io.LineProcessor;
 import com.google.common.io.Resources;
 import com.ibm.icu.text.Transliterator;
 
@@ -37,34 +36,44 @@ public class AzKindle {
 
 	private static StringTagger stringTagger;
 	private static Edict edictDictionary;
-	private static Set<String> knownWords;
-	private static Namespace ns;
-	private static final Map<String, Ruby> forcedRubies = new HashMap<String, Ruby>();
+	private static Namespace xhtmlNs = Namespace.getNamespace("xhtml", "http://www.w3.org/1999/xhtml");
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(AzKindle.class);
+	
 	/**
 	 * @param args
-	 * @throws IOException
-	 * @throws JDOMException
+	 * @throws Exception 
 	 */
-	public static void main(String[] args) throws IOException, JDOMException {
+	public static void main(String[] args) throws Exception {
 
 		final Options options = parseCommandLineArgs(args);
 
-		knownWords = loadKnownWords(options);
+		try {
+			KnownWords.loadKnownWords(options);
 
-		edictDictionary = new Edict();
+			edictDictionary = new Edict();
 
-		prepareGosenTagger();
+			prepareGosenTagger();
 
-		Document doc = loadSourceFile(options);
-		Element mainTextNode = getMainTextNode(doc);
-		String title = getSourceDocumentTitle(doc);
-		String author = getSourceDocumentAuthor(doc);
+			Document doc = loadSourceFile(options);
+			Element mainTextNode = getMainTextNode(doc);
+			String title = getSourceDocumentTitle(doc);
+			String author = getSourceDocumentAuthor(doc);
 
-		List<Ruby> allRuby = new ArrayList<Ruby>();
-		processSourceFile(mainTextNode, allRuby);
+			LOGGER.info("About to process book {} by {}", title, author);
+			
+			List<Ruby> allRuby = new ArrayList<Ruby>();
+			final Map<String, Ruby> forcedRubies = new HashMap<String, Ruby>();
+			processSourceFile(mainTextNode, allRuby, forcedRubies);
 
-		writeOutputFile(options, title, author, allRuby);
+			writeOutputFile(options, title, author, allRuby);
+			
+			LOGGER.info("Processing complete; {} ruby words identified with {} forced ruby readings", allRuby.size(), forcedRubies.size());
+			
+		} catch (Exception e) {
+			LOGGER.error("An unexpected error occurred during processing: {}", e.getMessage());
+			throw e;
+		}
 	}
 
 	private static Options parseCommandLineArgs(String[] args) {
@@ -82,44 +91,11 @@ public class AzKindle {
 		return options;
 	}
 
-	private static Set<String> loadKnownWords(Options options) throws IOException {
-		File jlptN4Words = options.vocabularySourceFile;
-		return Files.readLines(jlptN4Words, Charsets.UTF_8, new LineProcessor<Set<String>>() {
-
-			Set<String> words = new HashSet<String>();
-
-			public boolean processLine(String line) throws IOException {
-				final boolean kanaOnly = line.indexOf('-') == 0;
-				if (kanaOnly) {
-					words.add(line.substring(1));
-				} else {
-					final String kanjiPortion = line.substring(0, line.indexOf('-'));
-					String[] kanjiVariants = kanjiPortion.split("\\s");
-					for (String variant : kanjiVariants) {
-						words.add(kanjiPortion);
-					}
-				}
-				return true;
-			}
-
-			public Set<String> getResult() {
-				return words;
-			}
-		});
-	}
-
 	private static Document loadSourceFile(final Options options) throws JDOMException, IOException {
 		final SAXBuilder saxBuilder = new SAXBuilder(false);
 		saxBuilder.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
 		Document doc = saxBuilder.build(options.inputFile);
 		return doc;
-	}
-	
-	private static Element getNodeByXpath(String xpathQuery, Document context) throws JDOMException {
-			XPath xpath = XPath.newInstance(xpathQuery);
-			Namespace ns = Namespace.getNamespace("xhtml", "http://www.w3.org/1999/xhtml");
-			xpath.addNamespace(ns);
-			return (Element) xpath.selectSingleNode(context);
 	}
 
 	private static Element getMainTextNode(Document doc) throws JDOMException {
@@ -134,7 +110,7 @@ public class AzKindle {
 		return getNodeByXpath("//xhtml:h1[@class='title']", doc).getText();
 	}
 
-	private static void processSourceFile(Element mainTextNode, List<Ruby> allRuby) throws IOException {
+	private static void processSourceFile(Element mainTextNode, List<Ruby> allRuby, Map<String, Ruby> forcedRubies) throws IOException {
 
 		List childNodes = mainTextNode.getContent();
 		Iterator iterator = childNodes.iterator();
@@ -144,7 +120,7 @@ public class AzKindle {
 
 			if (nextChild instanceof Text) {
 				final Text textNode = (Text) nextChild;
-				allRuby.addAll(analyzeText(textNode.getText()));
+				allRuby.addAll(analyzeText(textNode.getText(), forcedRubies));
 			} else if (nextChild instanceof Element) {
 				final Element elementNode = (Element) nextChild;
 
@@ -154,7 +130,7 @@ public class AzKindle {
 					allRuby.add(forcedRuby);
 
 				} else {
-					allRuby.addAll(analyzeText(elementNode.getText()));
+					allRuby.addAll(analyzeText(elementNode.getText(), forcedRubies));
 				}
 
 			}
@@ -186,17 +162,24 @@ public class AzKindle {
 	}
 
 	private static Ruby copyForcedRuby(Element elementNode) {
-		String reading = elementNode.getChild("rt", ns).getText();
-		String writtenForm = elementNode.getChild("rb", ns).getText();
+		String reading = elementNode.getChild("rt", xhtmlNs).getText();
+		String writtenForm = elementNode.getChild("rb", xhtmlNs).getText();
 
 		String definition = edictDictionary.lookup(writtenForm);
 
-		System.out.println("Copying an existing ruby: " + writtenForm + " " + reading);
+		LOGGER.debug("Copying an existing ruby: {} with reading: {}", writtenForm, reading);
 
 		return new Ruby(writtenForm, reading, definition);
 	}
+	
+	private static Element getNodeByXpath(String xpathQuery, Document context) throws JDOMException {
+			XPath xpath = XPath.newInstance(xpathQuery);
+			
+			xpath.addNamespace(xhtmlNs);
+			return (Element) xpath.selectSingleNode(context);
+	}
 
-	private static List<Ruby> analyzeText(String textToAnalyze) throws IOException {
+	private static List<Ruby> analyzeText(String textToAnalyze, Map<String, Ruby> forcedRubies) throws IOException {
 		List<Token> analysis = stringTagger.analyze(textToAnalyze);
 
 		Transliterator tx = Transliterator.getInstance("Katakana-Hiragana");
@@ -227,8 +210,8 @@ public class AzKindle {
 				ruby = new Ruby(writtenForm);
 			}
 
-			if (knownWords.contains(writtenForm)) {
-				System.out.println("Written form recognised as known: " + writtenForm);
+			if (KnownWords.knownWords.contains(writtenForm)) {
+				LOGGER.debug("Written form recognised as known: {}", writtenForm);
 				ruby.setKnownDefinition(true);
 				ruby.setKnownReading(true);
 			}
