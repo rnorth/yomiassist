@@ -1,8 +1,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.azkindle</groupId>
-	<artifactId>azkindle</artifactId>
+	<groupId>org.yomiassist</groupId>
+	<artifactId>yomiassist</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>yomiassist-${project.version}</name>
 	<build>
@@ -25,7 +25,7 @@
 					<archive>
 						<manifest>
 							<addClasspath>true</addClasspath>
-							<mainClass>org.azkindle.AzKindle</mainClass>
+							<mainClass>org.yomiassist.AzKindle</mainClass>
 							<classpathPrefix>lib/</classpathPrefix>
 						</manifest>
 					</archive>
@@ -33,7 +33,7 @@
 			</plugin>
 			<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-assembly-plugin</artifactId> 
 				<version>2.2-beta-4</version> <configuration> <descriptorRefs> <descriptorRef>jar-with-dependencies</descriptorRef> 
-				</descriptorRefs> <archive> <manifest> <mainClass>org.azkindle.AzKindle</mainClass> 
+				</descriptorRefs> <archive> <manifest> <mainClass>org.yomiassist.AzKindle</mainClass> 
 				</manifest> </archive> </configuration> <executions> <execution> <phase>package</phase> 
 				<goals> <goal>single</goal> </goals> </execution> </executions> </plugin> -->
 

@@ -1,4 +1,4 @@
-package org.azkindle;
+package org.yomiassist;
 
 import org.jdom.Attribute;
 import org.jdom.Element;
