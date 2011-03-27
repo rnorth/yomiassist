@@ -46,8 +46,8 @@
         <fileSet>
             <directory>${basedir}</directory>
             <includes>
-                <include>LICENCE</include>
-                <include>ATTRIBUTION</include>
+                <include>LICENCE.txt</include>
+                <include>ATTRIBUTION.txt</include>
             </includes>
             <outputDirectory>/</outputDirectory>
         </fileSet>
