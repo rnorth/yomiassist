@@ -17,6 +17,7 @@ package org.yomiassist;
 
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
+import org.yomiassist.exception.YomiassistProcessingException;
 
 public class Yomiassist {
 

@@ -37,6 +37,9 @@ import org.jdom.output.XMLOutputter;
 import org.jdom.xpath.XPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yomiassist.exception.YomiassistProcessingException;
+import org.yomiassist.sourcedata.Edict;
+import org.yomiassist.sourcedata.KnownWords;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;

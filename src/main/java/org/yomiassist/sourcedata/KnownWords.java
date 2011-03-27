@@ -13,12 +13,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.yomiassist;
+package org.yomiassist.sourcedata;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+
+import org.yomiassist.Options;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;

@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.yomiassist;
+package org.yomiassist.sourcedata;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.yomiassist.exception.DictionaryException;
 
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;

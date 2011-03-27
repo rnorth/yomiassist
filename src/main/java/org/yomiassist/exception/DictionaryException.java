@@ -13,17 +13,18 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.yomiassist;
+package org.yomiassist.exception;
 
-public class YomiassistProcessingException extends Exception {
+
+public class DictionaryException extends RuntimeException {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 6944494379336050009L;
+	private static final long serialVersionUID = 4347478375213993628L;
 
-	public YomiassistProcessingException(Exception e) {
-		super(e);
+	public DictionaryException(String string, Exception e) {
+		super(string);
 	}
 
 }
