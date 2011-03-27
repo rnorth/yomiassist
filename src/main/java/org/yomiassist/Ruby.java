@@ -1,11 +1,7 @@
 package org.yomiassist;
 
-import org.jdom.Attribute;
 import org.jdom.Element;
 import org.jdom.Text;
-import org.w3c.dom.Node;
-
-import net.java.sen.dictionary.Token;
 
 public class Ruby {
 
@@ -32,21 +28,20 @@ public class Ruby {
 
 	public Element toNode() {
 		Element element = new Element("ruby");
-		
+
 		element.addContent(new Text(writtenForm));
-		
+
 		if (definition != null && !knownDefinition) {
 			element.setAttribute("definition", definition);
 		}
-		
+
 		if (reading != null && !knownReading) {
-			
+
 			final Element rtChildNode = new Element("rt");
 			rtChildNode.setText(reading);
 			element.addContent(rtChildNode);
 		}
-		
-		
+
 		return element;
 	}
 
@@ -69,5 +64,5 @@ public class Ruby {
 	public void setKnownReading(boolean knownReading) {
 		this.knownReading = knownReading;
 	}
-	
+
 }

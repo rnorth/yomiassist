@@ -35,6 +35,14 @@
 			</includes>
 			<outputDirectory>/</outputDirectory>
 		</fileSet>
+		<fileSet>
+            <directory>${basedir}/distribution</directory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+            <outputDirectory>/</outputDirectory>
+            <fileMode>744</fileMode>
+        </fileSet>
 	</fileSets>
 	<dependencySets>
 		<dependencySet>

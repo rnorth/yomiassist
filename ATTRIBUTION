@@ -1,0 +1,12 @@
+
+Yomiassist was developed by Richard North <rich.north+yomiassist@gmail.com>
+ 
+The following third-party works support major aspects of its functionality and are bundled with the yomiassist distribution package. 
+
+ * GoSen (http://itadaki.org/wiki/index.php?title=GoSen) -  LGPL licence
+ * Edict (http://www.csse.monash.edu.au/~jwb/edict.html) - property of the Electronic Dictionary Research and Development Group, and are used in conformance with the Group's licence (http://www.edrdg.org/edrdg/licence.html).
+ * ICU4J (http://site.icu-project.org/) - property of International Business Machines Corporation and others - ICU licence (http://icu-project.org/repos/icu/icu/trunk/license.html) 
+ * Google Guava (http://code.google.com/p/guava-libraries/) - Apache 2.0 licence
+ * JDOM (http://www.jdom.org/) - JDOM licence
+ * args4j (http://java.net/projects/args4j/) - MIT licence
+ * slf4j - MIT licence

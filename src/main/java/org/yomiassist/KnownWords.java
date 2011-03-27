@@ -11,9 +11,9 @@ import com.google.common.io.LineProcessor;
 
 public class KnownWords {
 
-	static Set<String> knownWords;
+	private Set<String> knownWords;
 
-	static void loadKnownWords(Options options) throws IOException {
+	public void load(Options options) throws IOException {
 		File jlptN4Words = options.vocabularySourceFile;
 		knownWords = Files.readLines(jlptN4Words, Charsets.UTF_8, new LineProcessor<Set<String>>() {
 	
@@ -37,6 +37,10 @@ public class KnownWords {
 				return words;
 			}
 		});
+	}
+
+	public Set<String> getKnownWords() {
+		return knownWords;
 	}
 
 }
