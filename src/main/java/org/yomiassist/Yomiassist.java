@@ -18,26 +18,45 @@ package org.yomiassist;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.yomiassist.exception.YomiassistProcessingException;
+import org.yomiassist.exception.YomiassistSetupException;
 
+/**
+ * Command line entry point for Yomiassist. Delegates main processing to
+ * {@link YomiassistProcessor}.
+ * 
+ * @author Richard North <rich.north+yomiassist@gmail.com>
+ * 
+ */
 public class Yomiassist {
 
 	/**
+	 * Execute Yomiassist from the command line.
+	 * 
+	 * Command line parameters are defined in {@link Options}.
+	 * 
 	 * @param args
-	 * @throws Exception 
+	 * @throws YomiassistProcessingException
+	 * @throws YomiassistSetupException 
 	 */
-	public static void main(String[] args) throws YomiassistProcessingException {
-	
+	public static void main(String[] args) throws YomiassistProcessingException, YomiassistSetupException {
+
 		final Options options = Yomiassist.parseCommandLineArgs(args);
-	
-		new YomiassistProcessor().process(options);
+
+		new YomiassistProcessor(options).process();
 	}
 
+	/**
+	 * 
+	 * @param args
+	 *            String arguments as passed in to process
+	 * @return A parsed and validated {@link Options} settings holder
+	 */
 	private static Options parseCommandLineArgs(String[] args) {
 		final Options options = new Options();
 		final CmdLineParser parser = new CmdLineParser(options);
 		try {
 			parser.parseArgument(args);
-	
+
 		} catch (CmdLineException e) {
 			System.err.println(e.getMessage());
 			System.err.println("java -jar yomiassist.jar [options...]");

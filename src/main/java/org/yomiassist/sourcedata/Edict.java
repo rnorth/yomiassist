@@ -29,6 +29,10 @@ import org.yomiassist.exception.DictionaryException;
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
 
+/**
+ * @author Richard North <rich.north+yomiassist@gmail.com>
+ *
+ */
 public class Edict {
 
 	private Map<String, String> dictionary = new HashMap<String, String>();

@@ -18,11 +18,23 @@ package org.yomiassist;
 import org.jdom.Element;
 import org.jdom.Text;
 
+/**
+ * Value object to hold the content of a 'ruby' kanji/reading combination, with
+ * associated defintion.
+ * 
+ * @author Richard North <rich.north+yomiassist@gmail.com>
+ * 
+ */
 public class Ruby {
 
 	private String writtenForm = null;
 	private String reading = null;
 	private String definition = null;
+
+	/**
+	 * Flags to indicate whether the definition/reading should be considered 'known' by
+	 * the target audience of the ebook.
+	 */
 	private boolean knownDefinition;
 	private boolean knownReading;
 
@@ -41,6 +53,12 @@ public class Ruby {
 		this.writtenForm = writtenForm;
 	}
 
+	/**
+	 * Convenience method to produce the {@link Element} representation of a
+	 * {@link Ruby}.
+	 * 
+	 * @return
+	 */
 	public Element toNode() {
 		Element element = new Element("ruby");
 
@@ -60,22 +78,37 @@ public class Ruby {
 		return element;
 	}
 
+	/**
+	 * @return written form of the Ruby
+	 */
 	public String getWrittenForm() {
 		return writtenForm;
 	}
 
+	/**
+	 * @return reading for the Ruby
+	 */
 	public String getReading() {
 		return reading;
 	}
 
+	/**
+	 * @return definition for the ruby
+	 */
 	public String getDefinition() {
 		return definition;
 	}
 
+	/**
+	 * @param knownDefinition	whether the target audience knows the definition for this ruby.
+	 */
 	public void setKnownDefinition(boolean knownDefinition) {
 		this.knownDefinition = knownDefinition;
 	}
 
+	/**
+	 * @param knownReading	whether the target audience knows the reading for this ruby.
+	 */
 	public void setKnownReading(boolean knownReading) {
 		this.knownReading = knownReading;
 	}

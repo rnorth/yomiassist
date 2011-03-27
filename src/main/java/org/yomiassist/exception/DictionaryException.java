@@ -16,6 +16,12 @@
 package org.yomiassist.exception;
 
 
+/**
+ * An exception raised during loading/processing of a dictionary.
+ * 
+ * @author Richard North <rich.north+yomiassist@gmail.com>
+ *
+ */
 public class DictionaryException extends RuntimeException {
 
 	/**

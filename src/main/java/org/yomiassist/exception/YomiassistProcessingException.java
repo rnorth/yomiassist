@@ -15,6 +15,13 @@
  */
 package org.yomiassist.exception;
 
+/**
+ * An exception raised during any processing between ebook formats within
+ * Yomiassist.
+ * 
+ * @author Richard North <rich.north+yomiassist@gmail.com>
+ * 
+ */
 public class YomiassistProcessingException extends Exception {
 
 	/**
