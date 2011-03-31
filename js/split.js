@@ -11,6 +11,10 @@ $(function(){
 //    });
 //    
 //    $("#content").remove();
+
+	var newContent = document.createElement("div");
+	$(newContent).addClass('break');
+	$("#content").parent().append(newContent);
     
 	$.each($("ruby"), function(i,char) {
 		
@@ -35,11 +39,16 @@ $(function(){
 	
     var vocabBox;
     var page = 1;
-    var pageHeight = 450;
+    var pageHeight = 420;
     var lastWordOnPage = null;
 	var seenOnThisPage = new Number();
+	
+	page = $(newContent).offset().top / pageHeight;
     
-    $.each($("ruby"), function(i, val){
+    $.each($("#content").children(), function(i, val){
+	
+		val = $(val).clone();
+		val.appendTo($(newContent));
 
         var y = $(val).offset().top;
         var yRelToPage = y - ((page - 1) * pageHeight);
@@ -85,4 +94,7 @@ $(function(){
 			$(val).find("rt").remove();
 		}
     });
+
+	$("#content").remove();
+	$(newContent).removeClass("break");
 });

@@ -6,11 +6,11 @@
         <style type="text/css"> 
             body {
                 width: 8.5cm;
-                font-size: 11pt;
+                font-size: 10pt;
             }
             
             ruby.plain + ruby.plain {
-                margin-left: -3pt;
+                margin-left: 0pt;
             }
             
             ruby {
