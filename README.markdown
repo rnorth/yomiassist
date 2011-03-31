@@ -17,3 +17,4 @@ Windows support should be possible but is not currently implemented.
 Versions
 ========
 0.0.1-SNAPSHOT:     First public alpha version
+0.0.2:				Major performance improvements and minor tweaks to visual appearance
