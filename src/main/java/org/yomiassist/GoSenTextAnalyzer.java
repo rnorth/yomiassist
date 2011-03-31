@@ -54,6 +54,7 @@ public class GoSenTextAnalyzer implements TextAnalyzer {
 		for (Token token : analysis) {
 
 			String writtenForm = token.toString();
+			String baseForm = token.getMorpheme().getBasicForm();
 			Ruby ruby;
 			final boolean hasReadings = token.getMorpheme().getReadings().size() > 0;
 			final boolean previouslyForcedRuby = forcedRubies.containsKey(writtenForm);
@@ -64,7 +65,6 @@ public class GoSenTextAnalyzer implements TextAnalyzer {
 				String katakanaReading = token.getMorpheme().getReadings().get(0);
 				String reading = tx.transform(katakanaReading);
 
-				String baseForm = token.getMorpheme().getBasicForm();
 				String definition = edictDictionary.lookup(baseForm);
 
 				if (!writtenForm.equals(reading) && !writtenForm.equals(katakanaReading)) {
@@ -76,7 +76,7 @@ public class GoSenTextAnalyzer implements TextAnalyzer {
 				ruby = new Ruby(writtenForm);
 			}
 
-			if (knownWords.getKnownWords().contains(writtenForm)) {
+			if (knownWords.getKnownWords().contains(baseForm)) {
 				LOGGER.debug("Written form recognised as known: {}", writtenForm);
 				ruby.setKnownDefinition(true);
 				ruby.setKnownReading(true);

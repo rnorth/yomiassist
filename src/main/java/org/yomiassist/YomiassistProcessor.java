@@ -113,6 +113,8 @@ public class YomiassistProcessor {
 					forcedRubies.put(forcedRuby.getWrittenForm(), forcedRuby);
 					allRuby.add(forcedRuby);
 
+				} else if (elementNode.getName().equals("br")) {
+					allRuby.add(new LinebreakRuby());
 				} else {
 					allRuby.addAll(textAnalyzer.analyzeText(elementNode.getText(), forcedRubies, edictDictionary, knownWords));
 				}

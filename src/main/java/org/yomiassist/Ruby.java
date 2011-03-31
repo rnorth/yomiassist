@@ -54,6 +54,13 @@ public class Ruby {
 	}
 
 	/**
+	 * Constructor only used by non-textual elements
+	 */
+	Ruby() {
+		
+	}
+
+	/**
 	 * Convenience method to produce the {@link Element} representation of a
 	 * {@link Ruby}.
 	 * 

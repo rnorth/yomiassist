@@ -63,7 +63,7 @@ public class KnownWords {
 					final String kanjiPortion = line.substring(0, line.indexOf('-'));
 					String[] kanjiVariants = kanjiPortion.split("\\s");
 					for (String variant : kanjiVariants) {
-						words.add(kanjiPortion);
+						words.add(variant);
 					}
 				}
 				return true;
